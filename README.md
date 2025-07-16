@@ -1,3 +1,8 @@
+# VS Code setup
+
+1. [MD All In One](https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one)
+2. [MDX](https://marketplace.visualstudio.com/items?itemName=unifiedjs.vscode-mdx)
+
 # Mintlify Starter Kit
 
 Click on `Use this template` to copy the Mintlify starter kit. The starter kit contains examples including
