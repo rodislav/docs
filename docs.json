@@ -15,7 +15,13 @@
             "pages": [
               "index",
               "pages/quickstart",
-              "pages/development"
+              "pages/development",
+              {
+                "group": "Conventions",
+                "pages": [
+                  "pages/conventions/postgresql"
+                ]
+              }
             ]
           },
           {
