@@ -19,7 +19,9 @@
               {
                 "group": "Conventions",
                 "pages": [
-                  "pages/conventions/postgresql"
+                  "pages/conventions/postgresql",
+                  "pages/conventions/java",
+                  "pages/conventions/spring-boot"
                 ]
               }
             ]

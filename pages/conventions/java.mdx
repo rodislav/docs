@@ -1,0 +1,118 @@
+---
+title: 'Java'
+description: 'Coding conventions for Java programming language'
+---
+
+<Info>
+  **Note**: This document outlines the coding conventions for Java programming language, including object oriented and functional paradigms. This file can be used for code generation as a master prompt or just contextual file.
+</Info>
+
+# General Naming
+
+- Use `PascalCase` for:
+    - file names.
+    - interface names.
+    - enums.
+
+- Use `UPPER CASE` for:
+    - constants.
+
+- Use meaningful names that clearly describe the purpose of the element:
+    - For packages, use a reverse domain name followed by the project name (e.g., `com.example.project`).
+    - For modules, use a descriptive name that indicates the module's functionality.
+    - For files, use the same name as the class or interface they contain.
+    - For constants, use names that indicate their purpose or value.
+
+- Do not use:
+    - Underscores in names.
+    - Abbreviations in names.
+    - Single letter names (except for loop variables).
+    - Suffixes like "Interface" for naming an Interface, "Class" or "Impl" or "Implementation" for naming a class.
+
+# Code structure
+
+- Use technical layers to structure your code in packages:
+    - `api` layer for API endpoints.
+    - `domain` layer for business logic.
+    - `application` layer for application logic.
+    - `infrastructure` layer for technical details.
+- Use "4 spaces" for indentation.
+
+# Class design
+
+- Use `PascalCase` for class names, use nouns or noun phrases, and it shall describe the intent.
+- Use constructor-based dependency injection.
+- Each class should have a single responsibility.
+- Use abstract classes for shared behavior.
+- Use interfaces to define contracts if multiple implementations exist.
+- Limit inheritance to a single level.
+- Favor composition over inheritance.
+- Use `final` for classes that should not be extended.
+- Favor stateless classes, unless it is a stateful class that represents a domain entity or value object.
+
+# Method design
+
+- Use `camelCase` for method names and variable names.
+- Use descriptive names for methods that indicate their purpose, use verbs or verb phrases.
+- Keep methods short and focused on a single task.
+- Use `@Override` annotation when overriding methods.
+- Use `@Deprecated` annotation for methods that should no longer be used.
+- Use `@FunctionalInterface` annotation for functional interfaces.
+- Keep method parameters to a minimum, ideally no more than 3.
+- Use `var` for local variable type inference when the type is clear from the context.
+- Use `this` keyword to refer to instance variables when necessary to avoid ambiguity.
+- Use Optional for method return types when a value may be absent, instead of returning `null`.
+- Use `@Nullable` and `@NonNull` annotations to indicate nullability of method parameters.
+- Favor method chaining for fluent APIs, but ensure it remains readable.
+- Use "one-liner" lambda expressions for simple operations, or extract the complex logic to a method and use it as a lambda call.
+- Avoid static methods and variables unless they are utility methods or constants.
+- Favor stateless methods over stateful methods.
+
+# Loops and conditionals
+
+- Limit the use of loops to simple iterations, no more than two levels of depth.
+- Use "null-safe" checks for objects before accessing their properties or methods.
+
+# Code documentation
+
+- Use Javadoc comments for public classes, methods, and fields.
+- Use `@param`, `@return`, and `@throws` tags in Javadoc comments to document method parameters, return values, and exceptions.
+- Use `@see` tag to reference related classes or methods.
+- Use `@deprecated` tag to indicate deprecated methods or classes.
+- Keep it concise and relevant, avoid redundant information.
+
+# Testing
+
+- Use JUnit for unit testing.
+- Use descriptive names for test methods that indicate the purpose of the test.
+- Use `@Test` annotation for test methods.
+- Use `@BeforeEach` and `@AfterEach` annotations for setup and teardown methods.
+- Use `@ParameterizedTest` for parameterized tests.
+- Use `@Nested` for grouping related tests.
+- Use `assert` methods from JUnit for assertions.
+- Use `Mockito` for mocking dependencies in tests.
+- One "unit test" per public method, and each test should be independent of others.
+- Write separated tests for both positive and negative scenarios.
+- Do not test private methods directly; test them through public methods.
+
+# Exception handling
+
+- Use exceptions for error handling, not for control flow.
+- Use checked exceptions for recoverable conditions and unchecked exceptions for the rest.
+- Use specific exception types instead of generic ones.
+- Use `try-catch` blocks for exception handling, and avoid catching generic exceptions.
+- Use `finally` block for cleanup code that must always execute.
+- Use `throw` statement to throw exceptions, and provide meaningful messages.
+- Never catch `Throwable` or `Exception` unless absolutely necessary.
+- Use custom exception classes for domain-specific errors.
+
+# Multithreading
+
+- Favor Virtual Threads (Project Loom) for concurrency when available.
+- Use `ExecutorService` for managing threads instead of creating threads manually.
+- Use `synchronized` keyword or `java.util.concurrent` package for thread safety.
+- Use `volatile` keyword for variables that may be accessed by multiple threads.
+- Avoid using `Thread.stop()` or `Thread.suspend()` methods as they are unsafe.
+- Avoid using shared mutable state between threads.
+- Avoid using `ThreadLocal` unless absolutely necessary, as it can lead to memory leaks.
+- Avoid using `Thread` class directly; prefer using `Runnable` or `Callable` interfaces.

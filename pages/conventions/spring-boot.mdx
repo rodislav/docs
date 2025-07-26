@@ -1,0 +1,34 @@
+---
+title: 'Java'
+description: 'Coding conventions for **Spring Boot** based applications'
+---
+
+<Info>
+  **Note**: This document outlines the coding conventions when using Spring Boot framework.
+</Info>
+
+# Code structure
+
+- Use ``src/main/java`` for application code.
+- Use ``src/main/resources`` for configuration files.
+- Use ``src/test/java`` for unit tests.
+
+# Code style
+
+- Use constructor-based dependency injection.
+- Do not use `@Autowired` annotation for dependency injection.
+- Do not use field dependency injection.
+- Avoid using method-level annotations for dependency injection.
+- Use `@Service`, `@Repository`, and `@Controller` annotations to define service, repository, and controller classes respectively.
+- Use `@RestController` for RESTful controllers.
+- Use `@Component` for generic components.
+- Use `@Configuration` for configuration classes.
+- Use suffixes like `Service`, `Repository`, `Controller`, and `Configuration` for class names.
+- Do not use `@Value` annotation for injecting configuration properties, instead use `@ConfigurationProperties` for binding configuration properties to classes which are used via constructor injection.
+- Use spring configuration processing features like `@ConfigurationProperties` for binding configuration properties to classes and generate properties files for auto-completion.
+- Use `@Bean` annotation to define beans in configuration classes.
+- Avoid using `@ComponentScan` annotation, instead use `@SpringBootApplication` annotation which includes component scanning by default.
+- Avoid using `ResponseEntity` for returning responses, instead use `@RestController` annotation at the class level.
+- Use `.properties` files for configuration, and avoid using `application.yml` or `application.yaml` files.
+- When using **lombok**, prefer using `@Getter` and `@Setter` annotations instead of `@Data` annotation.
+- When using **lombok**, prefer using `@RequiredArgs` annotation, and define as **final** internal variables that are required for the class to work.
