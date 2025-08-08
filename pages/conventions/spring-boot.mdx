@@ -30,5 +30,35 @@ description: 'Coding conventions for **Spring Boot** based applications'
 - Avoid using `@ComponentScan` annotation, instead use `@SpringBootApplication` annotation which includes component scanning by default.
 - Avoid using `ResponseEntity` for returning responses, instead use `@RestController` annotation at the class level.
 - Use `.properties` files for configuration, and avoid using `application.yml` or `application.yaml` files.
-- When using **lombok**, prefer using `@Getter` and `@Setter` annotations instead of `@Data` annotation.
-- When using **lombok**, prefer using `@RequiredArgs` annotation, and define as **final** internal variables that are required for the class to work.
+- Use DTOs for data transfer objects.
+- Use `@Transactional` annotation only if it is required.
+- Only use `@Transactional` annotation in the classes annotated with `@Service` annotation.
+
+# Logging
+
+- Use `org.slf4j.Logger` for logging.
+- Use `org.slf4j.LoggerFactory` for creating loggers.
+- Use `org.slf4j.MDC` for logging context.
+
+# Lombok
+
+- Favor using `@Getter` and `@Setter` annotations instead of `@Data` annotation.
+- Favor using `@RequiredArgs` annotation, and define as **final** internal variables that are required for the class to work.
+
+
+# JPA Entities
+
+- Use `@Entity` annotation for JPA entities.
+- Use `@Id` annotation for the primary key.
+- Use `@GeneratedValue` annotation for primary key generation.
+- Use `@Column` annotation for columns.
+- Use `@Table` annotation for tables.
+- Use `@OneToMany` annotation for one-to-many relationships.
+- Use `@ManyToOne` annotation for many-to-one relationships.
+- Use `@JoinColumn` annotation for joining columns.
+- Use `@Transient` annotation for transient fields.
+- Use `@SequenceGenerator` annotation for sequence generators.
+
+- For complex primary keys, use composite keys.
+
+- Avoid using entity relationships, instead use IDs to link entities, including for collections.

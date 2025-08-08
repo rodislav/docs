@@ -1,0 +1,77 @@
+---
+title: 'HTTP API'
+description: 'HTTP-based API conventions'
+---
+
+<Info>
+  **Note**: This document outlines the http-based API design conventions apps written with any programming language.
+</Info>
+
+# General principles
+
+- Use resources.
+- Use plural for resource names.
+- Use paginated results for collections.
+- If a collection is empty, return an empty array, not a `404`.
+- Use HTTP status codes to indicate the result of an operation.
+- Use HTTP headers to indicate additional information about the request or response.
+- For custom HTTP headers, use the `X-` prefix.
+- When creating a new entity with a POST request, follow these rules:
+    - The response should contain the URL of the newly created entity.
+    - The URL should be in the `Location` header of the response.
+    - The response payload should contain the newly created entity.
+- Always generate the **OpenAPI** specification for the API, with the latest version possible, in the `.yaml` format. Put this file in the resource folder of the app.
+- Never include technical details in the API documentation, such as the programming language or framework used to implement the API.
+
+
+# HTTP verbs and operations
+
+| Verb   | Purpose                             |
+|--------|-------------------------------------|
+| GET    | Retrieve a resource.                |
+| POST   | Create a resource.                  |
+| PUT    | Update a resource.                  |
+| PATCH  | Partially update a resource.        |
+| DELETE | Delete a resource.                  |
+| HEAD   | Retrieve metadata about a resource. |
+
+
+# Special cases for *actions*
+
+- Use `POST` to perform an action.
+- Use the `action` as the `path` to indicate the action to perform.
+    - For example, `POST /search` to perform a search.
+- The request body must contain the parameters for the action.
+- The URI can use optional query parameters for things like pagination, filtering, etc.
+
+# Architecture principles
+
+- Use **REST** architectural principle.
+- Use **JSON** as the default format for requests and responses.
+- Use **HTTP status codes** to indicate the result of an operation.
+
+# Specifics for URI
+
+- Use lowercase for resource names divided by hyphens.
+- The URI path shall always contain mandatory resource identifiers.
+- The query string shall always contain optional parameters.
+- The optional parameters shall be sorted alphabetically and have default values.
+- Always version the API.
+- Use the `v` prefix for the version number.
+- Use the `api` prefix for the API name.
+- Use the `v1` prefix for the first version of the API.
+
+# Specifics for HTTP status codes
+
+| Code | Usage                                                                   | Notes/Examples                                                                                                                                                                                                    |
+|------|-------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 200  | Return the resource or indicate successful operation.                   | Do not use this code for error cases.                                                                                                                                                                             |
+| 400  | Signal an invalid request for technical reasons.                        | The response body should contain a clear error message.                                                                                                                                                           |
+| 422  | Signal a validation error for business reasons.                         | The response body should contain a clear error message.                                                                                                                                                           |
+| 401  | Signal an unauthorized request, for both business or technical reasons. | If the user is not using a proper authentication mechanism, use the `WWW-Authenticate` header to indicate the authentication mechanism.                                                                           |
+| 403  | Signal a forbidden request, for both business or technical reasons.     | When the user is not allowed to perform the operation; e.g., trying to cancel a subscription that is not active; or trying to operate on a resource that is not ready to be used because a flow is still running. |
+| 404  | Signal a non-existent resource when retrieving or updating.             | Do not use when deleting or for collections.                                                                                                                                                                      |
+| 409  | Signal a conflict when creating a resource that already exists.         |                                                                                                                                                                                                                   |
+| 415  | Signal an unsupported media type.                                       |                                                                                                                                                                                                                   |
+| 500  | Signal an impossibility to perform the operation.                       | Never include the error message in the response body; use a logging system instead.                                                                                                                               |
+| 503  | Signal a service unavailable error.                                     |                                                                                                                                                                                                                   |
