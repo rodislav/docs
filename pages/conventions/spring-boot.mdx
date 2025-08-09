@@ -33,6 +33,20 @@ description: 'Coding conventions for **Spring Boot** based applications'
 - Use DTOs for data transfer objects.
 - Use `@Transactional` annotation only if it is required.
 - Only use `@Transactional` annotation in the classes annotated with `@Service` annotation.
+- Use **MapStruct** for mapping operations.
+- Use JSpecify annotations for type safety.
+
+# Common libraries
+
+- Use `lombok` for reducing boilerplate code.
+- Use `springdoc-openapi` for documenting APIs.
+- Use `spring-boot-starter-test` for unit testing.
+- Use `spring-boot-starter-actuator` for monitoring and management.
+- Use `spring-boot-devtools` for hot-reloading.
+- Use `spring-boot-starter-security` for authentication and authorization.
+- Use `spring-boot-starter-validation` for validation.
+- Use `spring-boot-starter-data-jpa` for JPA.
+- Use `spring-boot-starter-web` for web APIs.
 
 # Logging
 
@@ -45,6 +59,23 @@ description: 'Coding conventions for **Spring Boot** based applications'
 - Favor using `@Getter` and `@Setter` annotations instead of `@Data` annotation.
 - Favor using `@RequiredArgs` annotation, and define as **final** internal variables that are required for the class to work.
 
+# WEB APIs
+
+- Use `@RestController` annotation for controllers.
+- Favor `@GetMapping`, `@PostMapping`, `@PutMapping`, `@PatchMapping`, `@DeleteMapping` annotations for mapping HTTP methods.
+- Use `@RequestParam` annotation for mapping request parameters.
+- Use `@Valid` annotation for validating request bodies.
+- Use `@Validated` annotation for validating request bodies and request parameters.
+- Use `springdoc-openapi` to document APIs and DTOs.
+- Do not use `ResponseEntity` for returning responses, unless absolutely necessary.
+- When working with request details inject the `WebRequest request` to the corresponding controller method.
+    - Do not use `ServletUriComponentsBuilder`, `HttpServletRequest` or `HttpServletResponse`.
+
+# Exceptions
+
+- Use `org.springframework.web.bind.annotation.ResponseStatus` annotation for mapping HTTP status codes to exceptions.
+- Generate exceptions for generic cases like: Not Found, Bad Request, etc.
+- Use `org.springframework.http.HttpStatus` for HTTP status codes.
 
 # JPA Entities
 
@@ -62,3 +93,59 @@ description: 'Coding conventions for **Spring Boot** based applications'
 - For complex primary keys, use composite keys.
 
 - Avoid using entity relationships, instead use IDs to link entities, including for collections.
+
+# Maven
+
+- Use JIB for building OCI images.
+- Use Automatic Property Expansion.
+    - Example for `application.properties` file:
+        ```properties
+            app.encoding=@project.build.sourceEncoding@
+            app.java.version=@java.version@
+        ```
+    - Example for `pom.xml` file:
+        ```xml
+            <build>
+                <resources>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <filtering>true</filtering>
+                    </resource>
+                </resources>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>2.7</version>
+                        <configuration>
+                        <delimiters>
+                            <delimiter>@</delimiter>
+                        </delimiters>
+                        <useDefaultDelimiters>false</useDefaultDelimiters>
+                    </configuration>
+                </plugin>
+            </build>
+        ```
+- Use the `git-commit-id-plugin` for generating commit IDS.
+    - https://github.com/git-commit-id/git-commit-id-maven-plugin
+    - Example:
+    - ```xml
+        <plugin>
+            <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>9.0.2</version>
+                <executions>
+                <execution>
+                    <id>get-the-git-infos</id>
+                    <goals>
+                        <goal>revision</goal>
+                    </goals>
+                    <phase>initialize</phase>
+                </execution>
+            </executions>
+                <configuration>
+                <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                <commitIdGenerationMode>full</commitIdGenerationMode>
+            </configuration>
+        </plugin>
+      ```

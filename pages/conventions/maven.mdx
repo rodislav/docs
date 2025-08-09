@@ -1,0 +1,124 @@
+---
+title: 'Apache Maven'
+description: 'Conventions for crafting the `pom.xml` file for maven projects.'
+---
+
+# XML structure of the `pom.xml` file
+
+- https://maven.apache.org/pom.html
+- Use the following XML structure as example to organize high-level tags inside the `pom.xml` file:
+
+```xml
+    <!--suppress MavenParentMissedGroupIdArtifactIdInspection -->
+    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+      <modelVersion>4.0.0</modelVersion>
+
+      <parent>...<version>X</version></parent>
+
+      <!-- The Basics -->
+      <groupId>...</groupId>
+      <artifactId>...</artifactId>
+      <version>...</version>
+      <packaging>...</packaging>
+
+      <properties>...</properties>
+
+      <scm>...</scm>
+      <distributionManagement>...</distributionManagement>
+
+      <modules>...</modules>
+
+      <dependencies>...</dependencies>
+      <dependencyManagement>...</dependencyManagement>
+      <pluginRepositories>...</pluginRepositories>
+
+      <!-- Build Settings -->
+      <build>...</build>
+      <reporting>...</reporting>
+
+      <!-- More Project Information -->
+      <name>...</name>
+      <description>...</description>
+      <url>...</url>
+      <inceptionYear>...</inceptionYear>
+      <licenses>...</licenses>
+      <organization>...</organization>
+      <developers>...</developers>
+      <contributors>...</contributors>
+      <!-- Environment Settings -->
+      <issueManagement>...</issueManagement>
+      <ciManagement>...</ciManagement>
+      <mailingLists>...</mailingLists>
+      <profiles>...</profiles>
+      <prerequisites>...</prerequisites>
+      <repositories>...</repositories>
+    </project>
+```
+- Use `springdoc-openapi-maven-plugin` to generate the OpenAPI documentation:
+    - https://github.com/springdoc/springdoc-openapi-maven-plugin
+    - Example:
+    ```xml
+        <plugin>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-maven-plugin</artifactId>
+            <version>1.5</version>
+            <executions>
+                <execution>
+                    <id>integration-test</id>
+                    <goals>
+                        <goal>generate</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    ```
+- Use mapstruct for mapping between entities and DTOs:
+    - https://mapstruct.org/
+    - Example:
+    ```xml
+            <!--...-->
+            <properties>
+                <org.mapstruct.version>1.6.3</org.mapstruct.version>
+            </properties>
+            <!--...-->
+            <dependencies>
+                <dependency>
+                    <groupId>org.mapstruct</groupId>
+                    <artifactId>mapstruct</artifactId>
+                    <version>${org.mapstruct.version}</version>
+                </dependency>
+            </dependencies>
+            <!--...-->
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.8.1</version>
+                        <configuration>
+                            <source>1.8</source> <!-- depending on your project -->
+                            <target>1.8</target> <!-- depending on your project -->
+                            <annotationProcessorPaths>
+                                <path>
+                                    <groupId>org.mapstruct</groupId>
+                                    <artifactId>mapstruct-processor</artifactId>
+                                    <version>${org.mapstruct.version}</version>
+                                </path>
+                                <!-- other annotation processors -->
+                            </annotationProcessorPaths>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+    ```
+
+# General principles
+
+- Organize dependencies in the `dependencies` section by grouping them by `scope` and keeping the following order:
+    - `compile` for compile-time dependencies.
+    - `provided` for dependencies that are provided by the runtime environment.
+    - `runtime` for dependencies that are required at runtime but not at compile time.
+    - `test` for test dependencies.
+- Use **properties** to define common values that can be used across the project.
+- Use **properties** to define version values of the dependencies.
