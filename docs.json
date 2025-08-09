@@ -21,7 +21,8 @@
                   "pages/conventions/java",
                   "pages/conventions/spring-boot",
                   "pages/conventions/http-api",
-                  "pages/conventions/maven"
+                  "pages/conventions/maven",
+                  "pages/conventions/git"
                 ]
               },
               {
