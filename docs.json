@@ -20,7 +20,8 @@
                   "pages/conventions/postgresql",
                   "pages/conventions/java",
                   "pages/conventions/spring-boot",
-                  "pages/conventions/http-api"
+                  "pages/conventions/http-api",
+                  "pages/conventions/maven"
                 ]
               }
             ]
