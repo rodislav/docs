@@ -30,7 +30,7 @@ description: 'Coding conventions for **Spring Boot** based applications'
 - Avoid using `@ComponentScan` annotation, instead use `@SpringBootApplication` annotation which includes component scanning by default.
 - Avoid using `ResponseEntity` for returning responses, instead use `@RestController` annotation at the class level.
 - Use `.properties` files for configuration, and avoid using `application.yml` or `application.yaml` files.
-- Use DTOs for data transfer objects.
+- Use DTOs for data transfer objects and **lombok**, to reduce the boilerplate code.
 - Use `@Transactional` annotation only if it is required.
 - Only use `@Transactional` annotation in the classes annotated with `@Service` annotation.
 - Use **MapStruct** for mapping operations.
