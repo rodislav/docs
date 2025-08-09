@@ -49,6 +49,12 @@ description: 'Coding conventions for Java programming language'
 - Favor composition over inheritance.
 - Use `final` for classes that should not be extended.
 - Favor stateless classes, unless it is a stateful class that represents a domain entity or value object.
+- Use one file for one class.
+
+# Interface design
+
+- Use one file for one interface.
+
 
 # Method design
 
@@ -106,6 +112,7 @@ description: 'Coding conventions for Java programming language'
 - Use `throw` statement to throw exceptions, and provide meaningful messages.
 - Never catch `Throwable` or `Exception` unless absolutely necessary.
 - Use custom exception classes for domain-specific errors.
+- Do not use the word "error" in exception names, unless it is a business error and not a technical error.
 
 # Multithreading
 

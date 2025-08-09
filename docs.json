@@ -23,6 +23,12 @@
                   "pages/conventions/http-api",
                   "pages/conventions/maven"
                 ]
+              },
+              {
+                "group": "IT Management",
+                "pages": [
+                  "pages/it-management/cost-management"
+                ]
               }
             ]
           },
