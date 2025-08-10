@@ -28,6 +28,7 @@
               {
                 "group": "IT Management",
                 "pages": [
+                  "pages/it-management/it-transformation",
                   "pages/it-management/cost-management"
                 ]
               }
