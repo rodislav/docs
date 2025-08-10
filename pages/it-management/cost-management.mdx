@@ -5,44 +5,85 @@ description: 'What costs money and how to make it cost appropriate ?'
 
 # What costs money?
 
-1. Regulatory burden.
-2. Turnover.
-3. Hyped technologies.
-4. Slow updates.
-5. Manual processes.
-6. All the layers between C-Level and the Delivery Teams.
-7. Work which is not part of the core business.
-8. Excessive license costs.
+1. **Regulatory Burden**, you do not have the *critical mass* to comply with regulations.
+2. **Turnover**, the employees are leaving with knowledge, skills and connections while the new ones have to learn everything from scratch. You shall expect a drop in the productivity of the team, between 2 and 9 months.
+3. **Hyped Technologies**, building mission-critical software using hyped technology will explode risks and costs if this technology loses its audience.
+4. **Slow Updates**, leaving the software not updated for more than 1 year will make it critically vulnerable to security vulnerabilities. The security risks area increasing every year between 20 and 60 percent, prior to the previous year.
+5. **Manual Processes**, letting humans doing the job based on *documented* procedures, without automation, lead to errors and delays, which impact the deliveries. Each delayed delivery incurs costs for consultants, developers, QA, operations, management, reputation, etc.
+6. **Middle management layers between C-Level and the Delivery Teams**.
+7. **Not Core Business Work**, all resources spent on *not-important* and *not-urgent* and building stuff which is not part of your core business.
+8. See [Eisenhower Matrix](https://en.wikipedia.org/wiki/Eisenhower_Matrix).
+9. **Excessive License Costs**, using expensive software because "*it can do stuff*".
 
 # What to do about it?
 
-## Clean Code
-It is a way to reduce costs by reducing the time spent on:
+## Clean Code and Clean Architecture
 
-- Maintenance - existing code can get fixes.
-- Updates.
-- Onboarding new developers.
+| Area        | Benefit                                                                          | Before                                 | After                                 |
+|-------------|----------------------------------------------------------------------------------|----------------------------------------|---------------------------------------|
+| Maintenance | Existing code can be quickly fixed                                               | 4 hours, 2 developers (*1 MD*) per bug | 0.5 to 1 hour, 1 developer per bug    |
+| Updates     | Moving the technology stack to a superior version becomes financially meaningful | 200 of MD for 50 microservices         | 1 - 2 hours with AI or 50 MD manually |
+| Onboarding  | New team members will understand the code just by reading it                     | 2 weeks to be productive               | Can push to main branch after 1 day   |
 
-## Clean Architecture
-Allows you to:
-- Change the technology stack without rewriting the whole application.
-- Reduce the time spent on updates.
-- Reduce the time spent on onboarding new developers.
+## Automation
+
+| Area               | Benefit                                                                                                                         | Before                                                    | After                                                      |
+|--------------------|---------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|------------------------------------------------------------|
+| CI/CD              | New code can be deployed in matter of minutes in any environment, including PROD                                                | 5 days, 1-2 developers, 1 system engineer                 | 5 - 10 minutes, 1 developer                                |
+| Self Service ITSM  | Submitting requests and delivering a service for a new laptop, get access to a resource, etc. becomes fast and always compliant | up to 6 months of talks, meetings, emails, 2-15 employees | 1 hour - 10 days, 1 employee, 1 manager, 1 system engineer |
+| Project Management | Everyone knows what is the actual status of a given project or all the projects from all the portfolios, in a compliant way     | 1 reporting at the end of the month, not correct          | Instant                                                    |
+
+## Steps in procedures
+
+Use the following rules to approve or remove steps in procedures:
+
+1. Is this step reducing the costs?
+2. Is this step a compliance requirement?
+3. Is this step a security requirement?
+4. What are the exact boundaries of this step?
+5. What prevents this step from being automated?
+6. What prevents this step from being removed?
+
+## Non-Core-Business activities
+
+1. Is this activity a core business activity?
+2. Is this activity a regulatory requirement and shall it be done internally?
+
+If not, then:
+
+1. Compare the TCO of doing it internally with the TCO of externalizing it.
+
+## Start counting global ROI, how much you gain on each transaction?
+
+1. Move your finance to **FinOps**.
+2. https://www.finops.org/introduction/what-is-finops/
+3. Apply these practices to your business.
+
+Check the following:
+
+1. Describe the entire flow of making a transaction and put a price on each step
+2. Define why each step costs that much
+3. Start optimizing each step, but do not over-optimize, leave a *wiggle room*.
 
 ## Other
 
-- automate
-- reduce steps in procédures
-- delegate non core business activities
-- group up with companies with similar problems and create small companies solving specific problems (bancomat, kyc, paper shredding, etc)
-- start counting ROI, how much you gain on each transaction?
-- reduce midle management
-- delegate trust
-- use portable technology
+- Group up with companies with similar problems and create small companies solving specific problems (*bancomat, kyc, paper shredding, etc.*)
+- Reduce Middle Management.
+- Delegate trust to Team Leads.
+- Use portable technology, not one specific to a given cloud provider.
 
-## Identify excessive license costs
+# F.A.Q.
+
+## How to identify excessive license costs?
 
 1. You want to buy a solution, and you are contacted by more than two people from the seller.
 2. You cannot get a quote without a meeting.
 3. You are asked to sign an NDA before getting a quote.
-4. You are asked to sign a contract before getting a quote.
+4. You must use consultancy services to put in place the solution, example:
+    1. Such services are not free.
+    2. Such costs can amount to 1.000 EUR per day, per consultant, and the minimum number of days is 20.
+    3. So you'll have to pay about 20.000 EUR per year.
+5. You are asked to sign a contract before getting a quote.
+6. You split the cost of the license per item this software has to manage, example:
+    1. Licenses cost of an Incident Management Software, split per total numbers of incidents per year.
+    2. If the license cost is 80.000 EUR per 1 year, and you have 15 incidents per year, on average, the cost becomes **5,300 euro per incident**.
