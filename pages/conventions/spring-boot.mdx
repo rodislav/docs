@@ -10,40 +10,43 @@ description: 'Coding conventions for **Spring Boot** based applications'
 # Code style
 
 - Use latest stable version of Spring Boot.
-- Use constructor-based dependency injection.
-- Do not use `@Autowired` annotation for dependency injection.
-- Do not use field dependency injection.
-- Avoid using method-level annotations for dependency injection.
-- Use `@Service`, `@Repository`, and `@Controller` annotations to define service, repository, and controller classes respectively.
-- Use `@RestController` for RESTful controllers.
-- Use `@Component` for generic components.
-- Use `@Configuration` for configuration classes.
-- Use suffixes like `Service`, `Repository`, `Controller`, and `Configuration` for class names.
-- Do not use `@Value` annotation for injecting configuration properties, instead use `@ConfigurationProperties` for binding configuration properties to classes which are used via constructor injection.
-- Use spring configuration processing features like `@ConfigurationProperties` for binding configuration properties to classes and generate properties files for auto-completion.
-- Use `@Bean` annotation to define beans in configuration classes.
-- Avoid using `@ComponentScan` annotation, instead use `@SpringBootApplication` annotation which includes component scanning by default.
-- Avoid using `ResponseEntity` for returning responses, instead use `@RestController` annotation at the class level.
-- Use `.properties` files for configuration, and avoid using `application.yml` or `application.yaml` files.
-- Use DTOs for data transfer objects and **lombok**, to reduce the boilerplate code.
-- Use `@Transactional` annotation only if it is required.
-- Only use `@Transactional` annotation in the classes annotated with `@Service` annotation.
-- Use **MapStruct** for mapping operations.
-- Use JSpecify annotations for type safety.
 - Generate a banner with the name of the application.
 
-# Code structure
+- Use constructor-based dependency injection.
+- Do not use field dependency injection.
+- Do not use `@Autowired` annotation for dependency injection.
 
-- Use ``src/main/java`` for application code.
-- Use ``src/main/resources`` for configuration files.
-- Use ``src/test/java`` for unit tests.
+- Avoid using `@ComponentScan` annotation, instead use `@SpringBootApplication` annotation which includes component scanning by default.
+
+- Use `@Service`, `@Repository`, and `@Controller` annotations to define service, repository, and controller classes respectively.
+- Use `@Component` for generic components.
+- Use `@Bean` annotation to define beans in configuration classes.
+- Use `@Transactional` annotation only if it is required and only in the classes annotated with `@Service` annotation.
+
+- Use suffixes like `Service`, `Repository`, `Controller`, `DTO`, `Entity` and `Configuration` for class names.
+
+# Hierarchy
+
+- **Controllers** shall not call **Repositories** directly, instead use a "service layer" to handle the business logic.
+- **Services** shall call directly: **Repositories**, **Helpers**, other components.
+- Spring Security annotations shall be used only at the **Controller** level or at the **Service** level, not in any other places.
+
+# Configuration
+
+- Use `.properties` files for configuration, and avoid using `application.yml` or `application.yaml` files.
+- Use `@Configuration` for configuration classes.
+- Do not use `@Value` annotation for injecting configuration properties, instead use `@ConfigurationProperties` for binding configuration properties to classes which are used via constructor injection.
+- Use spring configuration processing features like `@ConfigurationProperties` for binding configuration properties to classes and generate properties files for auto-completion.
 
 # Common libraries
+
+- Use **MapStruct** for mapping operations.
+- Use JSpecify annotations for type safety.
 
 - Use `lombok` for reducing boilerplate code.
 - Use `liquibase` for SQL migrations.
 
-- Use `springdoc-openapi` for documenting APIs.
+- Use `springdoc-openapi` for documenting APIs and DTOs.
 - Use `spring-boot-starter-test` for unit testing.
 - Use `spring-boot-starter-actuator` for monitoring and management.
 - Use `spring-boot-devtools` for hot-reloading.
@@ -62,24 +65,32 @@ description: 'Coding conventions for **Spring Boot** based applications'
 
 - Favor using `@Getter` and `@Setter` annotations instead of `@Data` annotation.
 - Favor using `@RequiredArgs` annotation, and define as **final** internal variables that are required for the class to work.
+- When an "Entity" has a field annotated with `@Column(updatable = false)` or `@Column(insertable = false)`, use `@Setter(AccessLevel.PROTECTED)` to avoid generating setters for those fields.
+- Create `lombok.config` file in the root of the project with the following content:
+    ```properties
+    lombok.accessors.chain=true
+    lombok.addLombokGeneratedAnnotation = true
+    ```
 
-# WEB APIs
+# SQL Database
+
+- When using SQL Database, use the name of the user as the name of the schema.
+- The default password for the user should be `password`.
+- Use `org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate` for executing SQL queries.
+- Avoid using `org.springframework.jdbc.core.JdbcTemplate` for executing SQL queries, unless absolutely necessary.
+
+# Controllers
 
 - Use `@RestController` annotation for controllers.
 - Favor `@GetMapping`, `@PostMapping`, `@PutMapping`, `@PatchMapping`, `@DeleteMapping` annotations for mapping HTTP methods.
 - Use `@RequestParam` annotation for mapping request parameters.
 - Use `@Valid` annotation for validating request bodies.
 - Use `@Validated` annotation for validating request bodies and request parameters.
-- Use `springdoc-openapi` to document APIs and DTOs.
+- Use DTOs for data transfer objects and **lombok**, to reduce the boilerplate code. 
+- DTOs are part of the API, not part of the "service layer".
 - Do not use `ResponseEntity` for returning responses, unless absolutely necessary.
-- When working with request details inject the `WebRequest request` to the corresponding controller method.
-    - Do not use `ServletUriComponentsBuilder`, `HttpServletRequest` or `HttpServletResponse`.
-
-# Exceptions
-
-- Use `org.springframework.web.bind.annotation.ResponseStatus` annotation for mapping HTTP status codes to exceptions.
-- Generate exceptions for generic cases like: Not Found, Bad Request, etc.
-- Use `org.springframework.http.HttpStatus` for HTTP status codes.
+- Inject the `WebRequest request` to the corresponding controller method, instead of using `HttpServletRequest` or `HttpServletResponse`.
+- Use suffix `Controller` for controller classes.
 
 # JPA Entities
 
@@ -93,20 +104,29 @@ description: 'Coding conventions for **Spring Boot** based applications'
 - Use `@JoinColumn` annotation for joining columns.
 - Use `@Transient` annotation for transient fields.
 - Use `@SequenceGenerator` annotation for sequence generators.
-
 - For complex primary keys, use composite keys.
-
 - Avoid using entity relationships, instead use IDs to link entities, including for collections.
+- Use suffix `Entity` for entity classes.
+
+# Exceptions
+
+- Use `org.springframework.web.bind.annotation.ResponseStatus` annotation for mapping HTTP status codes to exceptions.
+- Generate exceptions for generic cases like: Not Found, Bad Request, etc.
+- Use `org.springframework.http.HttpStatus` for HTTP status codes.
 
 # Maven pom.xmls
 
 - Use JIB for building OCI images.
 
-- Use Automatic Property Expansion.
-    - Example for `application.properties` file:
+- Use Automatic Property Expansion:
+    - Eample for `application.properties` file:
         ```properties
             app.encoding=@project.build.sourceEncoding@
             app.java.version=@java.version@
+        ```
+    - Example in the banner file:
+        ```
+            ${app.name} - ${app.version} - ${app.encoding} - Java ${app.java.version}
         ```
     - Example for `pom.xml` file:
         ```xml

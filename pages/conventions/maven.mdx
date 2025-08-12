@@ -3,56 +3,52 @@ title: 'Apache Maven'
 description: 'Conventions for crafting the `pom.xml` file for maven projects.'
 ---
 
+# General
+
+- Do not use `mvnw` or `mvnw.cmd` files, instead use `mvn` command.
+- Use `mvn clean package` command to build the project.
+
 # XML structure of the `pom.xml` file
 
 - https://maven.apache.org/pom.html
 - Use the following XML structure as example to organize high-level tags inside the `pom.xml` file:
 
-```xml
-    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-      <modelVersion>4.0.0</modelVersion>
+```markdown
+    - project
+        - parent
+        
+        - groupId
+        - artifactId
+        - version
+        - packaging
+        
+        - properties
 
-      <parent>...<version>X</version></parent>
+        - dependencies
+        - dependencyManagement
+        
+        - profiles
+        
+        - modules
 
-      <!-- The Basics -->
-      <groupId>...</groupId>
-      <artifactId>...</artifactId>
-      <version>...</version>
-      <packaging>...</packaging>
-
-      <properties>...</properties>
-
-      <scm>...</scm>
-      <distributionManagement>...</distributionManagement>
-
-      <modules>...</modules>
-
-      <dependencies>...</dependencies>
-      <dependencyManagement>...</dependencyManagement>
-      <pluginRepositories>...</pluginRepositories>
-
-      <!-- Build Settings -->
-      <build>...</build>
-      <reporting>...</reporting>
-
-      <!-- More Project Information -->
-      <name>...</name>
-      <description>...</description>
-      <url>...</url>
-      <inceptionYear>...</inceptionYear>
-      <licenses>...</licenses>
-      <organization>...</organization>
-      <developers>...</developers>
-      <contributors>...</contributors>
-      <!-- Environment Settings -->
-      <issueManagement>...</issueManagement>
-      <ciManagement>...</ciManagement>
-      <mailingLists>...</mailingLists>
-      <profiles>...</profiles>
-      <prerequisites>...</prerequisites>
-      <repositories>...</repositories>
-    </project>
+        - build
+        
+        - scm
+        - distributionManagement
+        - name
+        - description
+        - url
+        - inceptionYear
+        - licenses
+        - organization
+        - developers
+        - contributors
+      
+        - issueManagement
+        - ciManagement
+        - mailingLists
+        - prerequisites
+        - repositories
 ```
 - Use `springdoc-openapi-maven-plugin` to generate the OpenAPI documentation:
     - https://github.com/springdoc/springdoc-openapi-maven-plugin
