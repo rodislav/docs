@@ -7,14 +7,9 @@ description: 'Coding conventions for **Spring Boot** based applications'
   **Note**: This document outlines the coding conventions when using Spring Boot framework.
 </Info>
 
-# Code structure
-
-- Use ``src/main/java`` for application code.
-- Use ``src/main/resources`` for configuration files.
-- Use ``src/test/java`` for unit tests.
-
 # Code style
 
+- Use latest stable version of Spring Boot.
 - Use constructor-based dependency injection.
 - Do not use `@Autowired` annotation for dependency injection.
 - Do not use field dependency injection.
@@ -36,6 +31,12 @@ description: 'Coding conventions for **Spring Boot** based applications'
 - Use **MapStruct** for mapping operations.
 - Use JSpecify annotations for type safety.
 - Generate a banner with the name of the application.
+
+# Code structure
+
+- Use ``src/main/java`` for application code.
+- Use ``src/main/resources`` for configuration files.
+- Use ``src/test/java`` for unit tests.
 
 # Common libraries
 
@@ -97,9 +98,10 @@ description: 'Coding conventions for **Spring Boot** based applications'
 
 - Avoid using entity relationships, instead use IDs to link entities, including for collections.
 
-# Maven
+# Maven pom.xmls
 
 - Use JIB for building OCI images.
+
 - Use Automatic Property Expansion.
     - Example for `application.properties` file:
         ```properties
@@ -128,27 +130,3 @@ description: 'Coding conventions for **Spring Boot** based applications'
                 </plugin>
             </build>
         ```
-- Use the `git-commit-id-plugin` for generating commit IDS.
-    - https://github.com/git-commit-id/git-commit-id-maven-plugin
-    - Example:
-    - ```xml
-        <plugin>
-            <groupId>io.github.git-commit-id</groupId>
-                <artifactId>git-commit-id-maven-plugin</artifactId>
-                <version>9.0.2</version>
-                <executions>
-                <execution>
-                    <id>get-the-git-infos</id>
-                    <goals>
-                        <goal>revision</goal>
-                    </goals>
-                    <phase>initialize</phase>
-                </execution>
-            </executions>
-                <configuration>
-                <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
-                <commitIdGenerationMode>full</commitIdGenerationMode>
-            </configuration>
-        </plugin>
-      ```

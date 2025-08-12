@@ -22,8 +22,6 @@ description: 'Conventions for using git'
 
           # Ignore local stuff
           *-local*
-
-          # Ignore environment files
           *.local.env
           *.local.md
 
@@ -36,15 +34,15 @@ description: 'Conventions for using git'
 - Use `main` as the default branch.
 - Use **TBD Trunk-Based Development** branching strategy.
 - Use feature branches for new features or bug fixes.
-- Merge to `main` when every day.
+- Merge to `main` branch every day.
 - Split changes into small commits.
 - Always rebase before merging.
 - Do not sync branches to environments.
     - Example: do not use a `dev` branch to sync to `dev` environment, or `uat` to `uat` environment.
-- Releases are done from `main` and are generating tags.
+- Releases are done from the `main` branch and are generating tags.
 - Tags are corresponding to released versions.
-- When a hotfix is needed:
+- When a hotfix is required, do the following:
     - Create a branch from the tag that corresponds to the affected version with the name `hotfix/TAG-reason-for-hotfix`.
     - Then create a new release from this branch and a corresponding tag.
-    - If the changes are deemed meaningful, merge to `main` and delete the hotfix branch.
-    - The merge can be a backporting or cherry-picking if the changes are not straightforward.
+    - If the changes are deemed meaningful, merge them to `main` and delete the hotfix branch.
+    - The merge operation can be a backporting or cherry-picking activity, if the changes are not straightforward.
