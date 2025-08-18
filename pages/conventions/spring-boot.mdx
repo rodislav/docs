@@ -29,7 +29,7 @@ description: 'Coding conventions for **Spring Boot** based applications'
 
 - **Controllers** shall not call **Repositories** directly, instead use a "service layer" to handle the business logic.
 - **Services** shall call directly: **Repositories**, **Helpers**, other components.
-- Spring Security annotations shall be used only at the **Controller** level or at the **Service** level, not in any other places.
+- Put the **Spring Security** configuration annotations at the **Controller** level or at the **Service** level.
 
 # Configuration
 
@@ -86,11 +86,14 @@ description: 'Coding conventions for **Spring Boot** based applications'
 - Use `@RequestParam` annotation for mapping request parameters.
 - Use `@Valid` annotation for validating request bodies.
 - Use `@Validated` annotation for validating request bodies and request parameters.
-- Use DTOs for data transfer objects and **lombok**, to reduce the boilerplate code. 
+- Use DTOs for data transfer objects and **lombok**, to reduce the boilerplate code.
+- DTOs are using `@Data` annotation for reducing boilerplate code, not the `Record` type. 
 - DTOs are part of the API, not part of the "service layer".
 - Do not use `ResponseEntity` for returning responses, unless absolutely necessary.
 - Inject the `WebRequest request` to the corresponding controller method, instead of using `HttpServletRequest` or `HttpServletResponse`.
 - Use suffix `Controller` for controller classes.
+- The Controller methods shall not have any business logic, they shall only delegate the calls to the service layer.
+    - Example: if a check is required to be done before calling the service, it shall be done in the service layer, not in the controller.
 
 # JPA Entities
 

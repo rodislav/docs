@@ -1,0 +1,107 @@
+---
+title: 'React'
+description: 'Conventions for using React Framework for building Single Page Applications'
+---
+
+# React Conventions
+
+## Generated
+
+- Use latest stable version of React.
+- Use `vite` for building React applications.
+- Use `TypeScript` for type safety.
+
+- Use `styled-components` or `emotion` for styling components.
+- Use `react-query` for data fetching and caching.
+- Use `react-query-devtools` for debugging React Query.
+- Use `react-testing-library` for unit testing.
+- Use `eslint` and `prettier` for code formatting and linting.
+- Use `react-i18next` for internationalization.
+- Use `react-hook-form` for form handling.
+- Use `react-icons` for icons.
+- Use `react-toastify` for notifications.
+- Use `react-helmet` for managing document head.
+- Use `react-error-boundary` for error handling.
+- Use `react-suspense` for lazy loading components.
+- Use `react-virtual` for virtual scrolling.
+- Use `react-helmet-async` for managing document head in async components.
+- Use `react-query` for data fetching and caching.
+- Use `react-router-dom` for routing.
+
+- Use functional components with hooks.
+
+- Use `useState`, `useEffect`, `useContext`, `useReducer`, and other hooks for state management and side effects.
+- Use `useMemo` and `useCallback` for performance optimization.
+- Use `useRef` for accessing DOM elements and persisting values across renders.
+
+## Project structure guidelines
+
+- Use `camelCase` for variable and function names.
+- Use `PascalCase` for component names.
+- Use `UPPER_CASE` for constants.
+- Use `kebab-case` for file names.
+- Use `index.tsx` for the main entry point of a component directory.
+- Use `src/hooks` for custom hooks.
+- Use `src/utils` for utility functions.
+- Use `src/styles` for global styles.
+- Use `src/assets` for static assets like images and fonts.
+
+- Put feature pages in `src/modules/{feature}/` (e.g., `items`, `lists`, `types`, `fields`).
+- Import and register pages in `src/modules/app/app.tsx` routes and nav.
+- Reuse `src/utils/http.ts` for network; add `postJson`/`deleteJson` helpers if missing.
+
+## Components
+
+- Use `props` for passing data to components.
+- Use `children` prop for rendering nested components.
+- Use `defaultProps` for default values of props.
+- Use `propTypes` for type checking props.
+- Use `TypeScript` interfaces for defining prop types.
+- Use `React.FC` for functional components.
+- Use `React.memo` for memoizing components to prevent unnecessary re-renders.
+- Use `useCallback` for memoizing functions passed as props.
+- Use `useMemo` for memoizing expensive calculations.
+- Create small functional components for simple UI elements.
+
+## Data fetching
+
+- Use `@tanstack/react-query`:
+  - `useQuery` to fetch collections/entities.
+  - `useMutation` for create/update/delete actions.
+  - Invalidate relevant query keys after successful mutations (e.g., `['items']`, `['lists']`, `['item-types']`, `['custom-fields']`).
+- API base URL honors `VITE_API_ORIGIN` and `VITE_API_PREFIX`.
+- All network calls use `fetchJson`/`putJson`/`postJson`/`deleteJson` helpers.
+- React Query cache is invalidated after mutations; UI updates without full reload.
+
+## User Interface
+
+- Use `styled-components` or `emotion` for styling components.
+- Use `CSS-in-JS` for styling components.
+- Use `CSS Modules` for styling components.
+- Use `BEM` or `SMACSS` for naming CSS classes.
+- Use `CSS variables` for theming and reusability.
+- Use `media queries` for responsive design.
+- Use `flexbox` or `CSS grid` for layout.
+- Use `rem` or `em` units for font sizes and spacing.
+- Use `px` units for fixed sizes like borders and shadows.
+- Use `@media` queries for responsive design.
+- Use `@keyframes` for animations. 
+
+## User Experience
+
+- Use React Bootstrap for UI components.
+- Use Tailwind CSS for utility-first CSS.
+- Show loading and error states.
+- Use `react-toastify` for success/error notifications.
+- Prefer inline editing for simple rename operations.
+- Keep UI minimal and accessible; styling via `styled-components`.
+
+## Runtime configuration
+
+- API base is controlled by env vars (see `src/utils/http.ts`):
+  - `VITE_API_ORIGIN` default `http://localhost:8080`
+  - `VITE_API_PREFIX` default `/api/v1`
+- Use the provided helpers in `src/utils/http.ts`:
+  - `fetchJson<T>(path)` for GET
+  - `putJson<TBody, TRes>(path, body)` for PUT
+  - Extend with `postJson` and `deleteJson` if needed for POST/DELETE.
