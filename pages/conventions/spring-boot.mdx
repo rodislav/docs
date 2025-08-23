@@ -7,7 +7,7 @@ description: 'Coding conventions for **Spring Boot** based applications'
   **Note**: This document outlines the coding conventions when using Spring Boot framework.
 </Info>
 
-# Code style
+# Framework
 
 - Use latest stable version of Spring Boot.
 - Generate a banner with the name of the application.
@@ -16,32 +16,15 @@ description: 'Coding conventions for **Spring Boot** based applications'
 - Do not use field dependency injection.
 - Do not use `@Autowired` annotation for dependency injection.
 
-- Avoid using `@ComponentScan` annotation, instead use `@SpringBootApplication` annotation which includes component scanning by default.
+- Avoid using `@ComponentScan` annotation, unless absolutely necessary.
 
-- Use `@Service`, `@Repository`, and `@Controller` annotations to define service, repository, and controller classes respectively.
-- Use `@Component` for generic components.
-- Use `@Bean` annotation to define beans in configuration classes.
-- Use `@Transactional` annotation only if it is required and only in the classes annotated with `@Service` annotation.
-
-- Use suffixes like `Service`, `Repository`, `Controller`, `DTO`, `Entity` and `Configuration` for class names.
-
-# Hierarchy
-
-- **Controllers** shall not call **Repositories** directly, instead use a "service layer" to handle the business logic.
-- **Services** shall call directly: **Repositories**, **Helpers**, other components.
-- Put the **Spring Security** configuration annotations at the **Controller** level or at the **Service** level.
-
-# Configuration
-
-- Use `.properties` files for configuration, and avoid using `application.yml` or `application.yaml` files.
+- Use `.properties` files for configuration, not `application.yml` nor `application.yaml` files.
 - Use `@Configuration` for configuration classes.
 - Do not use `@Value` annotation for injecting configuration properties, instead use `@ConfigurationProperties` for binding configuration properties to classes which are used via constructor injection.
 - Use spring configuration processing features like `@ConfigurationProperties` for binding configuration properties to classes and generate properties files for auto-completion.
 
-# Common libraries
-
 - Use **MapStruct** for mapping operations.
-- Use JSpecify annotations for type safety.
+- Use **JSpecify** annotations for type safety.
 
 - Use `lombok` for reducing boilerplate code.
 - Use `liquibase` for SQL migrations.
@@ -55,31 +38,78 @@ description: 'Coding conventions for **Spring Boot** based applications'
 - Use `spring-boot-starter-data-jpa` for JPA.
 - Use `spring-boot-starter-web` for web APIs.
 
-# Logging
+# Project Structure
 
-- Use `org.slf4j.Logger` for logging.
-- Use `org.slf4j.LoggerFactory` for creating loggers.
-- Use `org.slf4j.MDC` for logging context.
+## Package Organization
 
-# Lombok
+- Use technical layers to structure your code in packages:
+    - `api` layer for API endpoints, controllers, DTOs, and API-specific exceptions.
+    - `domain` layer for business logic, entities, domain services, and domain exceptions.
+    - `application` layer for application services, use cases, and orchestration logic.
+    - `infrastructure` layer for technical details, external integrations, and framework configurations.
+    - `shared` layer for common utilities, validation, and cross-cutting concerns.
 
-- Favor using `@Getter` and `@Setter` annotations instead of `@Data` annotation.
-- Favor using `@RequiredArgs` annotation, and define as **final** internal variables that are required for the class to work.
-- When an "Entity" has a field annotated with `@Column(updatable = false)` or `@Column(insertable = false)`, use `@Setter(AccessLevel.PROTECTED)` to avoid generating setters for those fields.
-- Create `lombok.config` file in the root of the project with the following content:
-    ```properties
-    lombok.accessors.chain=true
-    lombok.addLombokGeneratedAnnotation = true
-    ```
+## Example Structure
 
-# SQL Database
+```
+src/main/java/com/company/project/
+├── Application.java                 // Main class
+├── api/                            // Controllers and DTOs
+│   ├── controller/
+│   │   ├── UserController.java
+│   │   └── OrderController.java
+│   ├── dto/
+│   │   ├── CreateUserDTO.java
+│   │   ├── UserDTO.java
+│   │   ├── CreateOrderDTO.java
+│   │   ├── OrderDTO.java
+│   └── exception/
+│       └── GlobalExceptionHandler.java
+├── domain/                         // Business logic
+│   ├── model/
+│   │   ├── User.java
+│   │   └── Order.java
+│   ├── service/
+│   │   ├── UserService.java
+│   │   └── OrderService.java
+├── infrastructure/                 // Technical concerns
+│   ├── config/
+│   │   ├── SecurityConfig.java
+│   │   └── DatabaseConfig.java
+│   ├── persistence/
+│   │   └── repository/
+│   │       ├── UserRepository.java
+│   │       └── OrderRepository.java
+│   │   └── entity/
+│   │       ├── UserEntity.java
+│   │       └── OrderEntity.java
+│   └── external/
+│       └── client/
+└── shared/                         // Common utilities
+    ├── exception/
+    ├── validation/
+    └── util/
+```
 
-- When using SQL Database, use the name of the user as the name of the schema.
-- The default password for the user should be `password`.
-- Use `org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate` for executing SQL queries.
-- Avoid using `org.springframework.jdbc.core.JdbcTemplate` for executing SQL queries, unless absolutely necessary.
+# Naming
 
-# Controllers
+- Controllers: `{Entity}Controller` (e.g., `UserController`)
+- Services: `{Entity}Service` (e.g., `UserService`)
+- Repositories: `{Entity}Repository` (e.g., `UserRepository`)
+- DTOs: `{Action}{Entity}DTO` (e.g., `CreateUserDTO`)
+- JPA Entities: `{Entity}Entity` (e.g., `UserEntity`)
+- Exceptions: `{Entity}{ErrorType}Exception` (e.g., `UserNotFoundException`)
+- Constraint: `{Check}{Entity}Constraint` (e.g., `UniqueEmailConstraint`)
+
+# Hierarchy
+
+- **Controllers** shall use a "Services" to handle the business logic.
+- **Controllers** shall never call "Repositories".
+- **Services** shall call directly: **Repositories**, **Helpers**, and other components.
+- Other components like **ConstraintValidator** or **UserService** can call **Repositories** directly, if needed. 
+- Put the **Spring Security** configuration annotations at the **Controller** level or at the **Service** level.
+
+## Controllers
 
 - Use `@RestController` annotation for controllers.
 - Favor `@GetMapping`, `@PostMapping`, `@PutMapping`, `@PatchMapping`, `@DeleteMapping` annotations for mapping HTTP methods.
@@ -88,14 +118,17 @@ description: 'Coding conventions for **Spring Boot** based applications'
 - Use `@Validated` annotation for validating request bodies and request parameters.
 - Use DTOs for data transfer objects and **lombok**, to reduce the boilerplate code.
 - DTOs are using `@Data` annotation for reducing boilerplate code, not the `Record` type. 
-- DTOs are part of the API, not part of the "service layer".
+- DTOs are part of the "api layer".
 - Do not use `ResponseEntity` for returning responses, unless absolutely necessary.
 - Inject the `WebRequest request` to the corresponding controller method, instead of using `HttpServletRequest` or `HttpServletResponse`.
-- Use suffix `Controller` for controller classes.
 - The Controller methods shall not have any business logic, they shall only delegate the calls to the service layer.
     - Example: if a check is required to be done before calling the service, it shall be done in the service layer, not in the controller.
 
-# JPA Entities
+## Service Layer
+
+- Use `@Transactional` annotation only if it is required and only in the classes annotated with `@Service` annotation.
+
+## JPA Entities
 
 - Use `@Entity` annotation for JPA entities.
 - Use `@Id` annotation for the primary key.
@@ -111,13 +144,257 @@ description: 'Coding conventions for **Spring Boot** based applications'
 - Avoid using entity relationships, instead use IDs to link entities, including for collections.
 - Use suffix `Entity` for entity classes.
 
-# Exceptions
+# Validation and Annotations
+
+## Bean Validation
+```java
+@NoArgsConstructor
+@Data
+public class CreateUserDTO {
+    @NotBlank(message = "Street is required and cannot be empty")
+    @Size(max = 100, message = "Name cannot exceed 100 characters")
+    String name;
+    
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email cannot be empty")
+    String email;
+    
+    @NotNull(message = "Age is required")
+    @Min(value = 18, message = "Age must be at least 18")
+    @Max(value = 120, message = "Age must not exceed 120")
+    Integer age;
+    
+    @Valid
+    @NotNull(message = "Address is required")
+    AddressRequest address;
+}
+
+@NoArgsConstructor
+@Data
+public class CreateAddressDTO {
+    @NotBlank(message = "Street is required and cannot be empty")
+    String street;
+    
+    @NotBlank(message = "City is required and cannot be empty")
+    String city;
+    
+    @Pattern(regexp = "^\\d{5}(-\\d{4})?$", message = "ZIP code must use this format: 12345 or 12345-6789")
+    String zipCode;
+}
+```
+
+## Custom Validation
+
+- When validating, make sure to not expose sensitive information in the validation messages like "email already exists", instead use a generic message like "this email cannot be used".
+
+```java
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = UniqueEmailValidator.class)
+public @interface UniqueEmailConstraint {
+    String message() default "This email cannot be used";
+    Class<?>[] groups() default {};
+    Class<? extends Payload>[] payload() default {};
+}
+
+@Component
+public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, String> {
+    
+    private final UserRepository userRepository;
+    
+    public UniqueEmailValidator(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+    
+    @Override
+    public boolean isValid(String email, ConstraintValidatorContext context) {
+        return email != null && !userRepository.existsByEmail(email);
+    }
+}
+
+@NoArgsConstructor
+@Data
+public class CreateUserDTO {
+
+    @UniqueEmailConstraint
+    String email;
+}
+
+```
+
+# Exception Handling
+
+## Exceptions
 
 - Use `org.springframework.web.bind.annotation.ResponseStatus` annotation for mapping HTTP status codes to exceptions.
 - Generate exceptions for generic cases like: Not Found, Bad Request, etc.
 - Use `org.springframework.http.HttpStatus` for HTTP status codes.
 
-# Maven pom.xmls
+## Exception Hierarchy
+```java
+// Base exception for the application
+public abstract class ApplicationException extends RuntimeException {
+    private final ErrorCode errorCode;
+    
+    protected ApplicationException(ErrorCode errorCode, String message) {
+        super(message);
+        this.errorCode = errorCode;
+    }
+    
+    protected ApplicationException(ErrorCode errorCode, String message, Throwable cause) {
+        super(message, cause);
+        this.errorCode = errorCode;
+    }
+    
+    public ErrorCode getErrorCode() {
+        return errorCode;
+    }
+}
+
+// Domain exceptions
+public class UserNotFoundException extends ApplicationException {
+    public UserNotFoundException(String email) {
+        super(ErrorCode.USER_NOT_FOUND, "User not found with email: " + email);
+    }
+}
+
+public class InvalidUserDataException extends ApplicationException {
+    public InvalidUserDataException(String message) {
+        super(ErrorCode.INVALID_USER_DATA, message);
+    }
+}
+
+// Error codes enum
+public enum ErrorCode {
+    USER_NOT_FOUND("USR_001"),
+    INVALID_USER_DATA("USR_002"),
+    EMAIL_ALREADY_EXISTS("USR_003");
+    
+    private final String code;
+    
+    ErrorCode(String code) {
+        this.code = code;
+    }
+    
+    public String getCode() {
+        return code;
+    }
+}
+```
+
+## Global Exception Handler
+```java
+@RestControllerAdvice
+@Slf4j
+public class GlobalExceptionHandler {
+    
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ErrorResponse> handleValidation(ValidationException ex) {
+        log.warn("Validation error: {}", ex.getMessage());
+        
+        var errorResponse = ErrorResponse.builder()
+            .code("VALIDATION_ERROR")
+            .message("Request validation failed")
+            .details(extractValidationErrors(ex))
+            .build();
+            
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
+    
+    @ExceptionHandler(ApplicationException.class)
+    public ResponseEntity<ErrorResponse> handleApplication(ApplicationException ex) {
+        log.error("Application error: {}", ex.getMessage(), ex);
+        
+        var errorResponse = ErrorResponse.builder()
+            .code(ex.getErrorCode().getCode())
+            .message(ex.getMessage())
+            .build();
+            
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+    
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
+        log.error("Unexpected error", ex);
+        
+        var errorResponse = ErrorResponse.builder()
+            .code("INTERNAL_SERVER_ERROR")
+            .message("An unexpected error occurred")
+            .build();
+            
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+}
+```
+
+# Logging
+
+- Use `org.slf4j.Logger` for logging.
+- Use `org.slf4j.LoggerFactory` for creating loggers.
+- Use `org.slf4j.MDC` for logging context.
+
+```java
+@Service
+@Slf4j
+public class UserService {
+    
+    public User createUser(CreateUserRequest request) {
+        log.info("Creating user with email: {}", request.email());
+        
+        try {
+            var user = User.builder()
+                .name(request.name())
+                .email(request.email())
+                .build();
+                
+            var savedUser = userRepository.save(user);
+            
+            log.info("Successfully created user with id: {}", savedUser.getId());
+            
+            return savedUser;
+            
+        } catch (DataIntegrityViolationException ex) {
+            log.error("Failed to create user due to data integrity violation: {}", 
+                ex.getMessage());
+            throw new EmailAlreadyExistsException(request.email());
+        }
+    }
+    
+    public Optional<User> findUserByEmail(String email) {
+        log.debug("Finding user by email: {}", email);
+        
+        var user = userRepository.findByEmail(email);
+        
+        if (user.isEmpty()) {
+            log.debug("No user found with email: {}", email);
+        } else {
+            log.debug("Found user with id: {}", user.get().getId());
+        }
+        
+        return user;
+    }
+}
+```
+
+# Lombok
+
+- Favor using `@Getter` and `@Setter` annotations instead of `@Data` annotation.
+- Favor using `@RequiredArgs` annotation, and define as **final** internal variables that are required for the class to work.
+- When an "Entity" has a field annotated with `@Column(updatable = false)` or `@Column(insertable = false)`, use `@Setter(AccessLevel.PROTECTED)` to avoid generating setters for those fields.
+- Create `lombok.config` file in the root of the project with the following content:
+    ```properties
+    lombok.accessors.chain=true
+    lombok.addLombokGeneratedAnnotation = true
+    ```
+
+# SQL Database
+
+- Use the name of the user as the name of the schema.
+- The default password for the user should be `password`.
+- Use `org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate` for executing SQL queries.
+- Avoid using `org.springframework.jdbc.core.JdbcTemplate` for executing SQL queries, unless absolutely necessary.
+
+# Maven
 
 - Use JIB for building OCI images.
 
@@ -129,7 +406,7 @@ description: 'Coding conventions for **Spring Boot** based applications'
         ```
     - Example in the banner file:
         ```
-            ${app.name} - ${app.version} - ${app.encoding} - Java ${app.java.version}
+        ${app.name} - ${app.version} - ${app.encoding} - Java ${app.java.version}
         ```
     - Example for `pom.xml` file:
         ```xml

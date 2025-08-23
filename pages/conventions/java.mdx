@@ -4,14 +4,18 @@ description: 'Coding conventions for Java programming language'
 ---
 
 <Info>
-  **Note**: This document outlines the coding conventions for Java programming language, including object oriented and functional paradigms. This file can be used for code generation as a master prompt or just contextual file.
+  **Note**: This document outlines the coding conventions for Java programming language, including object oriented and functional paradigms. This file can be used for code generation as a master prompt or just contextual file when working with LLM tools like Claude Code and Cursor.
 </Info>
 
 # General
 
-- Use latest stable version of Java.
+- Use latest stable version of Java (prefer Java 21 LTS or later).
+- Enable preview features cautiously and only for non-production environments.
+- Use `--enable-preview` flag when experimenting with preview features.
 
 - Do not use fully qualified names in the code, use import statements instead. If not possible, use the fully qualified name only in the declaration, not in the usage.
+- Organize imports: static imports first, then java.*, javax.*, then third-party, then application packages.
+- Remove unused imports and use IDE auto-formatting.
 
 - Use **PascalCase** for:
     - file names.
@@ -43,20 +47,18 @@ description: 'Coding conventions for Java programming language'
     - Single letter names (except for loop variables).
     - Suffixes like "Interface" for naming an Interface, "Class" or "Impl" or "Implementation" for naming a class.
 
-# Code structure
+# Code formatting
 
-- Use technical layers to structure your code in packages:
-    - `api` layer for API endpoints.
-    - `domain` layer for business logic.
-    - `application` layer for application logic.
-    - `infrastructure` layer for technical details.
+- Use UTF-8 encoding.
 - Use "4 spaces" for indentation.
+- Maximum line length: 120 characters.
+- Use consistent formatting with tools like Google Java Format or Prettier for Java.
 
 # Class design
 
-- Use `PascalCase` for class names, use nouns or noun phrases, and it shall describe the intent.
+- Use nouns or noun phrases, and it shall describe the intent.
 - Use constructor-based dependency injection.
-- Each class should have a single responsibility.
+- Each class must have a single responsibility.
 - Use abstract classes for shared behavior.
 - Use interfaces to define contracts if multiple implementations exist.
 - Limit inheritance to a single level.
@@ -138,3 +140,154 @@ description: 'Coding conventions for Java programming language'
 - Avoid using shared mutable state between threads.
 - Avoid using `ThreadLocal` unless absolutely necessary, as it can lead to memory leaks.
 - Avoid using `Thread` class directly; prefer using `Runnable` or `Callable` interfaces.
+
+# Modern Java Features
+
+## Records
+- Do not usese records
+- Use lombok.
+
+## Sealed Classes (Java 17+)
+Use sealed classes for controlled inheritance:
+
+```java
+public sealed interface PaymentMethod 
+    permits CreditCard, BankTransfer, DigitalWallet {
+}
+
+public final class CreditCard implements PaymentMethod {
+    private final String number;
+    private final String expiryDate;
+    // ...
+}
+
+public final class BankTransfer implements PaymentMethod {
+    private final String accountNumber;
+    private final String routingNumber;
+    // ...
+}
+
+public non-sealed class DigitalWallet implements PaymentMethod {
+    // Allows further extension
+}
+```
+
+## Pattern Matching (Java 17+)
+Use pattern matching for instanceof and switch expressions:
+
+```java
+// Pattern matching with instanceof
+public String processPayment(PaymentMethod payment) {
+    return switch (payment) {
+        case CreditCard(var number, var expiry) -> 
+            "Processing credit card ending in " + number.substring(number.length() - 4);
+        case BankTransfer(var account, var routing) -> 
+            "Processing bank transfer from account " + account;
+        case DigitalWallet wallet -> 
+            "Processing digital wallet: " + wallet.getProviderName();
+    };
+}
+
+// Guard conditions in pattern matching
+public BigDecimal calculateDiscount(Customer customer, BigDecimal amount) {
+    return switch (customer) {
+        case PremiumCustomer(var tier) when tier.equals("GOLD") -> 
+            amount.multiply(new BigDecimal("0.15"));
+        case PremiumCustomer(var tier) when tier.equals("SILVER") -> 
+            amount.multiply(new BigDecimal("0.10"));
+        case RegularCustomer(var yearsActive) when yearsActive >= 5 -> 
+            amount.multiply(new BigDecimal("0.05"));
+        default -> BigDecimal.ZERO;
+    };
+}
+```
+
+## Text Blocks (Java 15+)
+Use text blocks for multiline strings:
+
+```java
+// Good: SQL queries
+private static final String FIND_USER_QUERY = """
+    SELECT u.id, u.name, u.email, u.created_at
+    FROM users u
+    WHERE u.active = true
+      AND u.created_at >= ?
+    ORDER BY u.created_at DESC
+    """;
+
+// Good: JSON templates
+private static final String ERROR_RESPONSE_TEMPLATE = """
+    {
+        "error": {
+            "code": "%s",
+            "message": "%s",
+            "timestamp": "%s"
+        }
+    }
+    """;
+```
+
+
+
+
+
+
+# LLM Development Guidelines
+
+## Code Generation Best Practices
+
+When working with AI coding tools like Claude Code or Cursor:
+
+### 2. Use Builder Pattern for Complex Objects
+```java
+@Builder
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class User {
+    private Long id;
+    private String name;
+    private String email;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    
+    @Builder.Default
+    private boolean active = true;
+}
+```
+
+### 4. Testing Patterns
+```java
+@SpringBootTest
+@TestPropertySource(locations = "classpath:application-test.properties")
+class UserServiceTest {
+    
+    @MockBean
+    private UserRepository userRepository;
+    
+    @Autowired
+    private UserService userService;
+    
+    @Test
+    void createUser_WithValidData_ReturnsUser() {
+        // Given
+        var request = new CreateUserRequest("John Doe", "john@example.com", null);
+        var expectedUser = User.builder()
+            .id(1L)
+            .name("John Doe")
+            .email("john@example.com")
+            .build();
+            
+        when(userRepository.save(any(User.class))).thenReturn(expectedUser);
+        
+        // When
+        var result = userService.createUser(request);
+        
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo("John Doe");
+        assertThat(result.getEmail()).isEqualTo("john@example.com");
+    }
+}
+```
+

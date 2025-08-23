@@ -4,7 +4,7 @@ description: 'HTTP-based API conventions'
 ---
 
 <Info>
-  **Note**: This document outlines the http-based API design conventions apps written with any programming language.
+  **Note**: This document outlines the http-based API design conventions for apps written with any programming language, with specific guidelines for development using LLM tools like Claude Code and Cursor.
 </Info>
 
 # General principles
@@ -22,6 +22,227 @@ description: 'HTTP-based API conventions'
     - The response payload should contain the newly created entity.
 - Always generate the **OpenAPI** specification for the API, with the latest version possible, in the `.yaml` format. Put this file in the resource folder of the app.
 - Never include technical details in the API documentation, such as the programming language or framework used to implement the API.
+
+# LLM Development Guidelines
+
+## Code Generation Best Practices
+
+When working with AI coding tools like Claude Code or Cursor:
+
+### 1. API Specification First
+- Always start with OpenAPI specification before implementation
+- Use the specification to generate client SDKs and server stubs
+- Validate all endpoints against the specification
+
+### 2. Test-Driven Development
+- Write API tests before implementing endpoints
+- Include both positive and negative test cases
+- Test error scenarios and edge cases
+- Use tools like Postman, Insomnia, or automated test suites
+
+### 3. Consistent Code Generation
+- Use consistent naming conventions across all endpoints
+- Follow established patterns for similar operations
+- Generate boilerplate code using templates or scaffolding tools
+
+### 4. Documentation Generation
+- Auto-generate API documentation from OpenAPI specs
+- Include request/response examples for all endpoints
+- Document error codes and their meanings
+- Provide SDK usage examples
+
+## OpenAPI Specification Template
+
+```yaml
+openapi: 3.0.3
+info:
+  title: Your API Name
+  description: API description
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: api-support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production server
+  - url: https://staging-api.example.com/v1
+    description: Staging server
+
+security:
+  - bearerAuth: []
+
+paths:
+  /users:
+    get:
+      summary: List users
+      description: Retrieve a paginated list of users
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      summary: Create user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: User created successfully
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URL of the created user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  
+  schemas:
+    User:
+      type: object
+      required:
+        - id
+        - email
+        - createdAt
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+          maxLength: 100
+        createdAt:
+          type: string
+          format: date-time
+    
+    Error:
+      type: object
+      required:
+        - success
+        - error
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+  
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+```
+
+## Testing Guidelines
+
+### Unit Tests
+- Test individual endpoint logic
+- Mock external dependencies
+- Test validation rules
+- Test error handling
+
+### Integration Tests
+- Test complete API workflows
+- Test database interactions
+- Test authentication/authorization
+- Test external service integrations
+
+### Contract Tests
+- Validate API responses against OpenAPI specification
+- Test backward compatibility
+- Validate client SDK generation
+
+### Performance Tests
+- Load testing for expected traffic
+- Stress testing for peak loads
+- Test response time requirements
+- Test rate limiting behavior
+
+## Monitoring and Observability
+
+### Logging
+- Log all API requests and responses (excluding sensitive data)
+- Include correlation IDs for request tracing
+- Log performance metrics
+- Log error details for debugging
+
+### Metrics
+- Request count by endpoint
+- Response time percentiles
+- Error rate by endpoint
+- Rate limiting violations
+
+### Health Checks
+```http
+GET /api/v1/health
+
+{
+  "status": "healthy",
+  "timestamp": "2024-01-01T00:00:00Z",
+  "version": "1.0.0",
+  "dependencies": {
+    "database": "healthy",
+    "redis": "healthy",
+    "external-api": "degraded"
+  }
+}
+```
 
 
 # HTTP verbs and operations
@@ -44,6 +265,54 @@ description: 'HTTP-based API conventions'
 - The request body must contain the parameters for the action.
 - The URI can use optional query parameters for things like pagination, filtering, etc.
 
+## Action Examples
+
+### Search Operations
+```http
+POST /api/v1/search
+Content-Type: application/json
+
+{
+  "query": "machine learning",
+  "filters": {
+    "category": "technology",
+    "dateRange": {
+      "from": "2024-01-01",
+      "to": "2024-12-31"
+    }
+  },
+  "sort": {
+    "field": "relevance",
+    "order": "desc"
+  }
+}
+```
+
+### Bulk Operations
+```http
+POST /api/v1/users/bulk-update
+Content-Type: application/json
+
+{
+  "userIds": [1, 2, 3, 4, 5],
+  "updates": {
+    "status": "active"
+  }
+}
+```
+
+### State Changes
+```http
+POST /api/v1/orders/123/cancel
+Content-Type: application/json
+
+{
+  "reason": "Customer request",
+  "refundAmount": 99.99,
+  "notifyCustomer": true
+}
+```
+
 # Architecture principles
 
 - Use **REST** architectural principle.
@@ -61,6 +330,44 @@ description: 'HTTP-based API conventions'
 - Use the `api` prefix for the API name.
 - Use the `v1` prefix for the first version of the API.
 
+## URI Structure Examples
+
+### Resource Collections
+```
+GET /api/v1/users
+GET /api/v1/users?status=active&role=admin&page=1&limit=20
+POST /api/v1/users
+```
+
+### Individual Resources
+```
+GET /api/v1/users/123
+PUT /api/v1/users/123
+PATCH /api/v1/users/123
+DELETE /api/v1/users/123
+```
+
+### Nested Resources
+```
+GET /api/v1/users/123/orders
+GET /api/v1/users/123/orders/456
+POST /api/v1/users/123/orders
+```
+
+### Actions
+```
+POST /api/v1/users/123/activate
+POST /api/v1/orders/456/cancel
+POST /api/v1/search
+```
+
+### Query Parameter Guidelines
+- **Filtering**: `?status=active&category=electronics`
+- **Sorting**: `?sort=createdAt&order=desc`
+- **Pagination**: `?page=2&limit=20`
+- **Field selection**: `?fields=id,name,email`
+- **Search**: `?q=john&searchIn=name,email`
+
 # Specifics for HTTP status codes
 
 | Code | Usage                                                                   | Notes/Examples                                                                                                                                                                                                    |
@@ -75,3 +382,246 @@ description: 'HTTP-based API conventions'
 | 415  | Signal an unsupported media type.                                       |                                                                                                                                                                                                                   |
 | 500  | Signal an impossibility to perform the operation.                       | Never include the error message in the response body; use a logging system instead.                                                                                                                               |
 | 503  | Signal a service unavailable error.                                     |                                                                                                                                                                                                                   |
+
+# Request/Response Format
+
+## Standard Request Structure
+
+### Headers
+Always include these standard headers:
+```http
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer <token>
+X-Request-ID: <uuid>
+User-Agent: <client-name>/<version>
+```
+
+### Request Body Format
+```json
+// Request payload
+```
+
+## Standard Response Structure
+
+### Success Response (2xx)
+```json
+// Response payload
+```
+
+### Error Response (4xx/5xx)
+```json
+{
+  "code": "VALIDATION_ERROR",
+  "message": "Invalid input data",
+  "details": [
+    {
+      "field": "email",
+      "message": "Email format is invalid",
+      "value": "invalid-email"
+    }
+  ]
+}
+```
+
+## Content-Type Specifications
+
+- **JSON API**: `application/json` (default)
+- **Form data**: `application/x-www-form-urlencoded`
+- **File uploads**: `multipart/form-data`
+- **Binary data**: `application/octet-stream`
+- **XML**: `application/xml` (legacy support only)
+
+# Error Handling
+
+## Error Response Guidelines
+
+### Error Code Standards
+Use consistent error codes across all endpoints:
+
+```typescript
+enum ErrorCodes {
+  // Validation errors (400)
+  VALIDATION_ERROR = 'VALIDATION_ERROR',
+  MISSING_REQUIRED_FIELD = 'MISSING_REQUIRED_FIELD',
+  INVALID_FORMAT = 'INVALID_FORMAT',
+  
+  // Authentication errors (401)
+  INVALID_TOKEN = 'INVALID_TOKEN',
+  TOKEN_EXPIRED = 'TOKEN_EXPIRED',
+  MISSING_AUTHENTICATION = 'MISSING_AUTHENTICATION',
+  
+  // Authorization errors (403)
+  INSUFFICIENT_PERMISSIONS = 'INSUFFICIENT_PERMISSIONS',
+  RESOURCE_FORBIDDEN = 'RESOURCE_FORBIDDEN',
+  
+  // Resource errors (404)
+  RESOURCE_NOT_FOUND = 'RESOURCE_NOT_FOUND',
+  ENDPOINT_NOT_FOUND = 'ENDPOINT_NOT_FOUND',
+  
+  // Conflict errors (409)
+  RESOURCE_ALREADY_EXISTS = 'RESOURCE_ALREADY_EXISTS',
+  CONCURRENT_MODIFICATION = 'CONCURRENT_MODIFICATION',
+  
+  // Server errors (500)
+  INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR',
+  DATABASE_ERROR = 'DATABASE_ERROR',
+  EXTERNAL_SERVICE_ERROR = 'EXTERNAL_SERVICE_ERROR'
+}
+```
+
+### Field-Level Validation Errors
+For validation errors, provide detailed field-level feedback:
+
+```json
+{
+  "code": "VALIDATION_ERROR",
+  "message": "Request validation failed",
+  "details": [
+    {
+      "field": "user.email",
+      "message": "Email address is required",
+      "code": "REQUIRED_FIELD"
+    },
+    {
+      "field": "user.age",
+      "message": "Age must be between 18 and 120",
+      "code": "OUT_OF_RANGE",
+      "constraints": { "min": 18, "max": 120 }
+    }
+  ]
+}
+```
+
+# Security and Authentication
+
+## Authentication Methods
+
+### Bearer Token (Recommended)
+```http
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+### API Key
+```http
+X-API-Key: your-api-key-here
+```
+
+### Basic Authentication (Legacy)
+```http
+Authorization: Basic base64(username:password)
+```
+
+## Security Headers
+
+Always include these security headers in responses:
+
+```http
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+Content-Security-Policy: default-src 'self'
+```
+
+## Input Validation
+
+### Request Validation Rules
+1. **Sanitize all inputs**: Remove or escape potentially dangerous characters
+2. **Validate data types**: Ensure fields match expected types
+3. **Check field lengths**: Impose reasonable limits on string fields
+4. **Validate formats**: Use regex for email, phone, etc.
+5. **Whitelist approach**: Only accept known good values
+
+### Example Validation Schema
+```json
+{
+  "user": {
+    "email": {
+      "type": "string",
+      "format": "email",
+      "required": true,
+      "maxLength": 255
+    },
+    "age": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 150
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["user", "admin", "moderator"]
+      },
+      "maxItems": 10
+    }
+  }
+}
+```
+
+# Performance and Caching
+
+## Caching Headers
+
+### Cache-Control Strategies
+```http
+# Static resources (long cache)
+Cache-Control: public, max-age=31536000, immutable
+
+# Dynamic content (short cache)
+Cache-Control: public, max-age=300, stale-while-revalidate=60
+
+# Private user data
+Cache-Control: private, max-age=0, no-cache, no-store
+
+# API responses with validation
+Cache-Control: public, max-age=3600
+ETag: "abc123"
+Last-Modified: Wed, 21 Oct 2015 07:28:00 GMT
+```
+
+## Pagination
+
+### Query Parameters
+```http
+GET /api/v1/users?page=2&limit=20&sort=createdAt&order=desc
+```
+
+### Response Structure
+### Headers
+```http
+X-Pagination-Page: 2
+X-Pagination-Limit: 20
+X-Pagination-Total-Items: 1000
+X-Pagination-Total-Pages : 100
+```
+
+### Link Headers (Alternative)
+```http
+Link: <https://api.example.com/users?page=1&limit=20>; rel="first",
+      <https://api.example.com/users?page=3&limit=20>; rel="next",
+      <https://api.example.com/users?page=8&limit=20>; rel="last"
+```
+
+## Rate Limiting
+
+### Headers
+```http
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 999
+X-RateLimit-Reset: 1640995200
+Retry-After: 60
+```
+
+### Rate Limit Response (429)
+```json
+"code": "RATE_LIMIT_EXCEEDED",
+"message": "Too many requests. Please try again later.",
+"details": {
+  "limit": 1000,
+  "remaining": 0,
+  "resetTime": "2024-01-01T12:00:00Z",
+  "retryAfter": 60
+}
+```

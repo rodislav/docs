@@ -17,12 +17,13 @@
               {
                 "group": "Conventions",
                 "pages": [
-                  "pages/conventions/postgresql",
-                  "pages/conventions/java",
-                  "pages/conventions/spring-boot",
+                  "pages/conventions/git",
                   "pages/conventions/http-api",
+                  "pages/conventions/java",
                   "pages/conventions/maven",
-                  "pages/conventions/git"
+                  "pages/conventions/postgresql",
+                  "pages/conventions/react",
+                  "pages/conventions/spring-boot"
                 ]
               },
               {
