@@ -27,7 +27,13 @@ description: 'Coding conventions for **Spring Boot** based applications'
 - Use **JSpecify** annotations for type safety.
 
 - Use `lombok` for reducing boilerplate code.
-- Use `liquibase` for SQL migrations.
+- Create `lombok.config` file in the root of the project with the following content:
+    ```properties
+    lombok.accessors.chain=true
+    lombok.addLombokGeneratedAnnotation = true
+    ```
+
+- Use `liquibase` for SQL migrations. Write migrations in SQL format, not XML nor YAML.
 
 - Use `springdoc-openapi` for documenting APIs and DTOs.
 - Use `spring-boot-starter-test` for unit testing.
@@ -143,10 +149,12 @@ src/main/java/com/company/project/
 - For complex primary keys, use composite keys.
 - Avoid using entity relationships, instead use IDs to link entities, including for collections.
 - Use suffix `Entity` for entity classes.
+- When an `Entity` has a field annotated with `@Column(updatable = false)` or `@Column(insertable = false)`, use `@Setter(AccessLevel.PROTECTED)` to avoid generating setters for those fields.
+- Use `@Getter` and `@Setter` annotations instead of `@Data` annotation.
 
 # Validation and Annotations
 
-## Bean Validation
+## DTO Validation
 ```java
 @NoArgsConstructor
 @Data
@@ -222,170 +230,17 @@ public class CreateUserDTO {
 
 ```
 
-# Exception Handling
-
-## Exceptions
+# Exceptions
 
 - Use `org.springframework.web.bind.annotation.ResponseStatus` annotation for mapping HTTP status codes to exceptions.
 - Generate exceptions for generic cases like: Not Found, Bad Request, etc.
 - Use `org.springframework.http.HttpStatus` for HTTP status codes.
-
-## Exception Hierarchy
-```java
-// Base exception for the application
-public abstract class ApplicationException extends RuntimeException {
-    private final ErrorCode errorCode;
-    
-    protected ApplicationException(ErrorCode errorCode, String message) {
-        super(message);
-        this.errorCode = errorCode;
-    }
-    
-    protected ApplicationException(ErrorCode errorCode, String message, Throwable cause) {
-        super(message, cause);
-        this.errorCode = errorCode;
-    }
-    
-    public ErrorCode getErrorCode() {
-        return errorCode;
-    }
-}
-
-// Domain exceptions
-public class UserNotFoundException extends ApplicationException {
-    public UserNotFoundException(String email) {
-        super(ErrorCode.USER_NOT_FOUND, "User not found with email: " + email);
-    }
-}
-
-public class InvalidUserDataException extends ApplicationException {
-    public InvalidUserDataException(String message) {
-        super(ErrorCode.INVALID_USER_DATA, message);
-    }
-}
-
-// Error codes enum
-public enum ErrorCode {
-    USER_NOT_FOUND("USR_001"),
-    INVALID_USER_DATA("USR_002"),
-    EMAIL_ALREADY_EXISTS("USR_003");
-    
-    private final String code;
-    
-    ErrorCode(String code) {
-        this.code = code;
-    }
-    
-    public String getCode() {
-        return code;
-    }
-}
-```
-
-## Global Exception Handler
-```java
-@RestControllerAdvice
-@Slf4j
-public class GlobalExceptionHandler {
-    
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(ValidationException ex) {
-        log.warn("Validation error: {}", ex.getMessage());
-        
-        var errorResponse = ErrorResponse.builder()
-            .code("VALIDATION_ERROR")
-            .message("Request validation failed")
-            .details(extractValidationErrors(ex))
-            .build();
-            
-        return ResponseEntity.badRequest().body(errorResponse);
-    }
-    
-    @ExceptionHandler(ApplicationException.class)
-    public ResponseEntity<ErrorResponse> handleApplication(ApplicationException ex) {
-        log.error("Application error: {}", ex.getMessage(), ex);
-        
-        var errorResponse = ErrorResponse.builder()
-            .code(ex.getErrorCode().getCode())
-            .message(ex.getMessage())
-            .build();
-            
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-    }
-    
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
-        log.error("Unexpected error", ex);
-        
-        var errorResponse = ErrorResponse.builder()
-            .code("INTERNAL_SERVER_ERROR")
-            .message("An unexpected error occurred")
-            .build();
-            
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-    }
-}
-```
 
 # Logging
 
 - Use `org.slf4j.Logger` for logging.
 - Use `org.slf4j.LoggerFactory` for creating loggers.
 - Use `org.slf4j.MDC` for logging context.
-
-```java
-@Service
-@Slf4j
-public class UserService {
-    
-    public User createUser(CreateUserRequest request) {
-        log.info("Creating user with email: {}", request.email());
-        
-        try {
-            var user = User.builder()
-                .name(request.name())
-                .email(request.email())
-                .build();
-                
-            var savedUser = userRepository.save(user);
-            
-            log.info("Successfully created user with id: {}", savedUser.getId());
-            
-            return savedUser;
-            
-        } catch (DataIntegrityViolationException ex) {
-            log.error("Failed to create user due to data integrity violation: {}", 
-                ex.getMessage());
-            throw new EmailAlreadyExistsException(request.email());
-        }
-    }
-    
-    public Optional<User> findUserByEmail(String email) {
-        log.debug("Finding user by email: {}", email);
-        
-        var user = userRepository.findByEmail(email);
-        
-        if (user.isEmpty()) {
-            log.debug("No user found with email: {}", email);
-        } else {
-            log.debug("Found user with id: {}", user.get().getId());
-        }
-        
-        return user;
-    }
-}
-```
-
-# Lombok
-
-- Favor using `@Getter` and `@Setter` annotations instead of `@Data` annotation.
-- Favor using `@RequiredArgs` annotation, and define as **final** internal variables that are required for the class to work.
-- When an "Entity" has a field annotated with `@Column(updatable = false)` or `@Column(insertable = false)`, use `@Setter(AccessLevel.PROTECTED)` to avoid generating setters for those fields.
-- Create `lombok.config` file in the root of the project with the following content:
-    ```properties
-    lombok.accessors.chain=true
-    lombok.addLombokGeneratedAnnotation = true
-    ```
 
 # SQL Database
 
@@ -394,39 +249,153 @@ public class UserService {
 - Use `org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate` for executing SQL queries.
 - Avoid using `org.springframework.jdbc.core.JdbcTemplate` for executing SQL queries, unless absolutely necessary.
 
+# Testing
+
+- Use `@SpringBootTest` annotation for integration tests.
+- Use `@TestPropertySource` annotation for loading test properties.
+- Use `@MockBean` annotation for mocking beans.
+
+- Example of a unit test for a service class using Spring Boot Test and Mockito:
+```java
+@SpringBootTest
+@TestPropertySource(locations = "classpath:application-test.properties")
+class UserServiceTest {
+    
+    @MockBean
+    private UserRepository userRepository;
+    
+    @Autowired
+    private UserService userService;
+    
+    @Test
+    void createUser_WithValidData_ReturnsUser() {
+        // Given
+        var request = new CreateUserRequest("John Doe", "john@example.com", null);
+        var expectedUser = User.builder()
+            .id(1L)
+            .name("John Doe")
+            .email("john@example.com")
+            .build();
+            
+        when(userRepository.save(any(User.class))).thenReturn(expectedUser);
+        
+        // When
+        var result = userService.createUser(request);
+        
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo("John Doe");
+        assertThat(result.getEmail()).isEqualTo("john@example.com");
+    }
+}
+```
+
 # Maven
 
 - Use JIB for building OCI images.
 
+- Use the `git-commit-id-plugin` for generating commit IDS.
+    - https://github.com/git-commit-id/git-commit-id-maven-plugin
+    - Example:
+    - ```xml
+        <plugin>
+            <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>9.0.2</version>
+                <executions>
+                <execution>
+                    <id>get-the-git-infos</id>
+                    <goals>
+                        <goal>revision</goal>
+                    </goals>
+                    <phase>initialize</phase>
+                </execution>
+            </executions>
+                <configuration>
+                <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                <commitIdGenerationMode>full</commitIdGenerationMode>
+            </configuration>
+        </plugin>
+      ```
+
+- Use `springdoc-openapi-maven-plugin` to generate the OpenAPI documentation:
+    - https://github.com/springdoc/springdoc-openapi-maven-plugin
+    - Example:
+    ```xml
+        <plugin>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-maven-plugin</artifactId>
+            <version>1.5</version>
+            <executions>
+                <execution>
+                    <id>integration-test</id>
+                    <goals>
+                        <goal>generate</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    ```
+
+- Use the following order of `annotationProcessorPaths` in `maven-compiler-plugin` configuration, 
+    - Example:
+    ```xml
+    <annotationProcessorPaths>
+        <path>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+        </path>
+        <path>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok-mapstruct-binding</artifactId>
+            <version>0.2.0</version>
+        </path>
+        <path>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>${mapstruct.version}</version>
+        </path>
+        <path>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <version>${spring-boot.version}</version>
+        </path>
+    </annotationProcessorPaths>
+    ```
+
 - Use Automatic Property Expansion:
     - Eample for `application.properties` file:
-        ```properties
-            app.encoding=@project.build.sourceEncoding@
-            app.java.version=@java.version@
-        ```
+    ```properties
+        app.encoding=@project.build.sourceEncoding@
+        app.java.version=@java.version@
+    ```
+
     - Example in the banner file:
-        ```
-        ${app.name} - ${app.version} - ${app.encoding} - Java ${app.java.version}
-        ```
+    ```text
+    ${app.name} - App Version ${app.version} - Encoding ${app.encoding} - Java Version ${app.java.version}
+    ```
+
     - Example for `pom.xml` file:
-        ```xml
-            <build>
-                <resources>
-                    <resource>
-                        <directory>src/main/resources</directory>
-                        <filtering>true</filtering>
-                    </resource>
-                </resources>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <version>2.7</version>
-                        <configuration>
-                        <delimiters>
-                            <delimiter>@</delimiter>
-                        </delimiters>
-                        <useDefaultDelimiters>false</useDefaultDelimiters>
-                    </configuration>
-                </plugin>
-            </build>
-        ```
+    ```xml
+        <build>
+            <resources>
+                <resource>
+                    <directory>src/main/resources</directory>
+                    <filtering>true</filtering>
+                </resource>
+            </resources>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.7</version>
+                    <configuration>
+                    <delimiters>
+                        <delimiter>@</delimiter>
+                    </delimiters>
+                    <useDefaultDelimiters>false</useDefaultDelimiters>
+                </configuration>
+            </plugin>
+        </build>
+    ```
