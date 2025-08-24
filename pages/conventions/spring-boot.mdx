@@ -36,13 +36,14 @@ description: 'Coding conventions for **Spring Boot** based applications'
 - Use `liquibase` for SQL migrations. Write migrations in SQL format, not XML nor YAML.
 
 - Use `springdoc-openapi` for documenting APIs and DTOs.
-- Use `spring-boot-starter-test` for unit testing.
+- Use `spring-boot-starter-test` for integration testing.
 - Use `spring-boot-starter-actuator` for monitoring and management.
 - Use `spring-boot-devtools` for hot-reloading.
 - Use `spring-boot-starter-security` for authentication and authorization.
 - Use `spring-boot-starter-validation` for validation.
 - Use `spring-boot-starter-data-jpa` for JPA.
 - Use `spring-boot-starter-web` for web APIs.
+- Use **maven** as build tool.
 
 # Project Structure
 
@@ -125,7 +126,7 @@ src/main/java/com/company/project/
 - Use `@Valid` annotation for validating request bodies.
 - Use `@Validated` annotation for validating request bodies and request parameters.
 - Use **DTOs** for data transfer objects and **lombok**, to reduce the boilerplate code.
-- DTOs are using `@Data` annotation for reducing boilerplate code. 
+- DTOs are using **lombok** `@Data` annotation for reducing boilerplate code. 
 - DTOs are part of the "*API layer*".
 - Do not use `ResponseEntity` for returning responses, unless absolutely necessary.
 - Inject the `WebRequest request` to the corresponding controller method, instead of using `HttpServletRequest` or `HttpServletResponse`.
