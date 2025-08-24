@@ -110,8 +110,10 @@ src/main/java/com/company/project/
 # Hierarchy
 
 - **Controllers** shall use a "Services" to handle the business logic.
+- **Controllers** are mapping entities to DTOs.
 - **Controllers** shall never call "Repositories".
 - **Services** shall call directly: **Repositories**, **Helpers**, and other components.
+- **Services** are not mapping entities to DTOs.
 - Other components like **ConstraintValidator** or **UserService** can call **Repositories** directly, if needed. 
 - Put the **Spring Security** configuration annotations at the **Controller** level or at the **Service** level.
 
@@ -122,13 +124,18 @@ src/main/java/com/company/project/
 - Use `@RequestParam` annotation for mapping request parameters.
 - Use `@Valid` annotation for validating request bodies.
 - Use `@Validated` annotation for validating request bodies and request parameters.
-- Use DTOs for data transfer objects and **lombok**, to reduce the boilerplate code.
-- DTOs are using `@Data` annotation for reducing boilerplate code, not the `Record` type. 
-- DTOs are part of the "api layer".
+- Use **DTOs** for data transfer objects and **lombok**, to reduce the boilerplate code.
+- DTOs are using `@Data` annotation for reducing boilerplate code. 
+- DTOs are part of the "*API layer*".
 - Do not use `ResponseEntity` for returning responses, unless absolutely necessary.
 - Inject the `WebRequest request` to the corresponding controller method, instead of using `HttpServletRequest` or `HttpServletResponse`.
 - The Controller methods shall not have any business logic, they shall only delegate the calls to the service layer.
     - Example: if a check is required to be done before calling the service, it shall be done in the service layer, not in the controller.
+- Use pagination for listing collections of resources, even if the initial implementation does not require it. 
+- Use `Pageable` interface for pagination.
+- Use `Page<T>` interface for returning paginated results.
+- Default page size shall be 20 items.
+- Maximum page size shall be 100 items.
 
 ## Service Layer
 
@@ -151,6 +158,7 @@ src/main/java/com/company/project/
 - Use suffix `Entity` for entity classes.
 - When an `Entity` has a field annotated with `@Column(updatable = false)` or `@Column(insertable = false)`, use `@Setter(AccessLevel.PROTECTED)` to avoid generating setters for those fields.
 - Use `@Getter` and `@Setter` annotations instead of `@Data` annotation.
+- Favor IDs of type `Long` for primary keys.
 
 # Validation and Annotations
 
